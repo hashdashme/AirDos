@@ -173,7 +173,7 @@ def on_receiver_found(info):
     if discoverable:
         additional = f'{Style.DIM}{id} {hostname} [{address}]:{port}{Style.RESET_ALL}'
         logger.info('🔍 Found       {:32}   {}'.format(Fore.GREEN + receiver_name + Fore.RESET, additional))
-        if receiver_name not in whitelist:
+        if receiver_name not in whitelist and receiver_name not in cloaking_things:
             cloaking_things.append(receiver_name)
         if receiver_name in whitelist:
             logger.info('❌ Ignoring    {:32}   {}'.format(Fore.RED + receiver_name + Fore.RESET, additional))
